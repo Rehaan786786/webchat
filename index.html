@@ -2,35 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chat Window</title>
+  <title>Web Chat App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="chat-window">
-    <div id="chat-header">
-      <img src="avatar.png" alt="User Avatar">
-      <h2>John Doe</h2>
+  <div class="container">
+    <div class="chat-header">
+      <h2>Web Chat App</h2>
+      <div id="online-users"></div>
     </div>
-    <div id="chat-history">
-      <div class="chat-message received-message">
-        <p class="message-content">Hello, how can I help you today?</p>
-        <span class="message-timestamp">10:32am</span>
-      </div>
-      <div class="chat-message sent-message">
-        <p class="message-content">Hi, I have a question about my account.</p>
-        <span class="message-timestamp">10:33am</span>
-      </div>
-      <div class="chat-message received-message">
-        <p class="message-content">Sure, what's your question?</p>
-        <span class="message-timestamp">10:34am</span>
-      </div>
-    </div>
-    <div id="chat-input">
-      <input type="text" placeholder="Type your message...">
-      <button id="send-button">Send</button>
+    <div class="chat-box"></div>
+    <div class="message-input-container">
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="send-button" class="send-button">Send</button>
     </div>
   </div>
-
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
   <script src="script.js"></script>
 </body>
 </html>
