@@ -2,21 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Web Chat App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <div class="chat-header">
-      <h2>Web Chat App</h2>
-      <div id="online-users"></div>
+      <h1>Chat App</h1>
+      <p>Welcome <span id="username"></span></p>
     </div>
-    <div class="chat-box"></div>
-    <div class="message-input-container">
-      <input type="text" id="chat-input" placeholder="Type your message...">
-      <button id="send-button" class="send-button">Send</button>
+    <div class="messages">
+      <ul id="messagesList"></ul>
+    </div>
+    <div class="input-container">
+      <input type="text" placeholder="Type your message" id="messageInput">
+      <button id="sendButton">Send</button>
     </div>
   </div>
+
   <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
   <script src="script.js"></script>
 </body>
