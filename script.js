@@ -15,63 +15,94 @@ if (!userName) {
 const chatHeader = document.querySelector('#chat-header');
 chatHeader.querySelector('h2').textContent = userName;
 
-// Initialize socket.io
-const socket = io();
-
-// Send chat message to server
-function sendChatMessage() {
-  const message = chatInput.value;
-  if (message) {
-    socket.emit('chat message', { message, userName });
+// Send message when "Send" button is clicked
+sendButton.addEventListener('click', () => {
+  const messageContent = chatInput.value.trim();
+  if (messageContent !== '') {
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('chat-message', 'sent-message');
+    const messageText = document.createElement('p');
+    messageText.classList.add('message-content');
+    messageText.textContent = messageContent;
+    const messageTimestamp = document.createElement('span');
+    messageTimestamp.classList.add('message-timestamp');
+    messageTimestamp.textContent = getCurrentTime();
+    messageContainer.appendChild(messageText);
+    messageContainer.appendChild(messageTimestamp);
+    chatHistory.appendChild(messageContainer);
     chatInput.value = '';
-  }
-}
 
-// Listen for send button click and enter key press
-sendButton.addEventListener('click', sendChatMessage);
-chatInput.addEventListener('keypress', (event) => {
-  if (event.key === 'Enter') {
-    sendChatMessage();
+    // Send message to all online users
+    onlineUsers.forEach(user => {
+      if (user !== userName) {
+        sendMessage(userName, user, messageContent);
+      }
+    });
   }
 });
 
-// Receive chat message from server and display it in chat history
-socket.on('chat message', (data) => {
-  const { message, userName } = data;
-  const isCurrentUser = userName === localStorage.getItem('userName');
+// Get current time in format HH:mm
+function getCurrentTime() {
+  const now = new Date();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  if (hours < 10) {
+    hours = '0' + hours;
+  }
+  if (minutes < 10) {
+    minutes = '0' + minutes;
+  }
+  return `${hours}:${minutes}`;
+}
+
+// Send a message from one user to another
+function sendMessage(sender, recipient, message) {
   const messageContainer = document.createElement('div');
-  messageContainer.classList.add('message-container');
-  if (isCurrentUser) {
-    messageContainer.classList.add('current-user');
+  messageContainer.classList.add('chat-message', 'received-message');
+  const messageText = document.createElement('p');
+  messageText.classList.add('message-content');
+  messageText.textContent = message;
+  const messageTimestamp = document.createElement('span');
+  messageTimestamp.classList.add('message-timestamp');
+  messageTimestamp.textContent = getCurrentTime();
+  const messageSender = document.createElement('span');
+  messageSender.classList.add('message-sender');
+  messageSender.textContent = sender;
+  messageContainer.appendChild(messageSender);
+  messageContainer.appendChild(messageText);
+  messageContainer.appendChild(messageTimestamp);
+
+  // Check if recipient is online
+  if (onlineUsers.has(recipient)) {
+    const recipientChatHistory = document.querySelector(`#chat-history-${recipient}`);
+    recipientChatHistory.appendChild(messageContainer);
   } else {
-    messageContainer.classList.add('other-user');
-    if (!onlineUsers.has(userName)) {
-      onlineUsers.add(userName);
-      displayOnlineUsers();
+    // If recipient is offline, display message in sender's chat history
+    chatHistory.appendChild(messageContainer);
+  }
+}
+
+// Ask for recipient's name and send message when user presses enter key
+chatInput.addEventListener('keypress', event => {
+  if (event.key === 'Enter') {
+    const messageContent = chatInput.value.trim();
+    if (messageContent !== '') {
+      const recipientName = prompt('Please enter the name of the person you want to send a message to:');
+      if (recipientName && recipientName !== userName) {
+        sendMessage(userName, recipientName, messageContent);
+      }
     }
   }
-  const messageBubble = document.createElement('div');
-  messageBubble.classList.add('message-bubble');
-  messageBubble.textContent = message;
-  const userNameElement = document.createElement('div');
-  userNameElement.classList.add('user-name');
-  userNameElement.textContent = userName;
-  messageContainer.appendChild(userNameElement);
-  messageContainer.appendChild(messageBubble);
-  chatHistory.appendChild(messageContainer);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
 });
 
-// Update online users list
-function displayOnlineUsers() {
-  const onlineUsersList = document.querySelector('#online-users ul');
-  onlineUsersList.innerHTML = '';
-  for (const user of onlineUsers) {
-    const userElement = document.createElement('li');
-    userElement.textContent = user;
-    onlineUsersList.appendChild(userElement);
-  }
-}
+// Detect when a new user enters the chat
+window.addEventListener('beforeunload', () => {
+  onlineUsers.delete(userName);
+  localStorage.removeItem('userName');
+});
+
+// Poll the server to check for new
+
 
 // Poll the server to see if user is still connected
 setInterval(() => {
